@@ -7,7 +7,7 @@ CORS(app)
 conn = None
 cursor = None
 try:
-    conn = connect(host='localhost', port=3306, password='123456', user='root', database='db_work')
+    conn = connect(host='localhost', port=3306,  user='root',password='123456', database='db_work')
     cursor = conn.cursor()
     sql = "SET GLOBAL event_scheduler = ON"
     cursor.execute(sql)
@@ -20,13 +20,13 @@ except Exception as e:
 def getip():
     ip_address = request.remote_addr
     try:
-        sql = f"SELECT * FROM blacklist WHERE clientip = \"{ip_address}\";"
+        sql = f"SELECT * FROM blacklist WHERE clientip = \"{ip_address}\""
         cursor.execute(sql)
         conn.commit()
         result = cursor.fetchall()
         print(result)
         if len(result) == 0:
-            sql = f"insert into blacklist(clientip,level) values(\"{ip_address}\",'0')"
+            sql = f"insert into blacklist(clientip,insertdate,level) values(\"{ip_address}\",'2024-4-21','0')"
             cursor.execute(sql)
             conn.commit()
             return ip_address
@@ -304,16 +304,17 @@ def getBorrowRankByDay():
 def getMostPopularBooks():
     print('here')
     try:
-        sql = "select bookid,count(*) from borrow group by bookid order by count(*) desc"
+        sql = "select bookname,count(*) from borrow,bookinf where borrow.bookid=bookinf.bookid group by borrow.bookid order by count(*) desc"
         cursor.execute(sql)
         conn.commit()
         res = []
         rr = cursor.fetchall()
         for item in rr:
-            res.append({"bookid": item[0], "cnt": item[1]})
+            res.append({"bookname": item[0], "cnt": item[1]})
         print(res)
         return jsonify(res)
     except Exception as e:
+        print(e)
         return 'failed'
 
 
